@@ -73,6 +73,9 @@ int main(void)
 	GPIO_E -> PDOR = CLEAR_PORT;
 	GPIO_E -> PDDR = GREEN_PIN;//Bit 26 of GPIO E on for Green on LEDRGB
 
+	uint32_t SW2_FLAG = 0;
+	uint32_t SW3_FLAG = 0;
+
 
 
     while(1)
@@ -80,9 +83,8 @@ int main(void)
 
     	uint32_t input_value_SW2 = 0;
     	uint32_t input_value_SW3 = 0;
-    	uint32_t time_delay = 65000;
+    	uint32_t time_delay = 1000000;
     	uint32_t time_delay_third = 3u;
-
 
     	input_value_SW2 = GPIO_C->PDIR;
     	/**Masks the GPIOC in the bit of interest*/
@@ -95,6 +97,30 @@ int main(void)
     	/**Note that the comparison is not inputValur == False, because it is
     	safer if we switch the arguments*/
     	if(FALSE == input_value_SW2)
+    	    	{
+    				if(SW2_FLAG==0)
+    				{
+    					SW2_FLAG = 1;
+    				}
+    				else if (SW2_FLAG==1)
+    				{
+    					SW2_FLAG = 0;
+    				}
+    	    	}
+
+    	else if(FALSE == input_value_SW3)
+    	    	{
+    				if(SW3_FLAG==0)
+    		    		{
+    		    			SW3_FLAG = 1;
+    		    		}
+    		    	else if (SW3_FLAG==1)
+    		    		{
+    		    			SW3_FLAG = 0;
+    		    		}
+    	    	}
+
+    	if(TRUE == SW2_FLAG)
     	{
     		time_delay = time_delay/time_delay_third;
     		GPIO_B -> PDOR = RED_LED_ON;
@@ -104,8 +130,9 @@ int main(void)
     		GPIO_B -> PDOR |= RED_LED_OFF;
     		GPIO_E -> PDOR |= GREEN_LED_OFF;
     		GPIO_B -> PDOR |= BLUE_LED_OFF;
+    		SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
     	}
-    	else if(FALSE == input_value_SW3)
+    	else if(TRUE == SW3_FLAG)
     	{
     		GPIO_B -> PDOR = RED_LED_ON;
     		GPIO_E -> PDOR = GREEN_LED_ON;
@@ -114,19 +141,21 @@ int main(void)
     		GPIO_B -> PDOR |= RED_LED_OFF;
     		GPIO_E -> PDOR |= GREEN_LED_OFF;
     		GPIO_B -> PDOR |= BLUE_LED_OFF;
+    		SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
     	}
     	else
     	{
 			GPIO_B -> PDOR = RED_LED_ON;
+			SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
 			GPIO_B -> PDOR |= RED_LED_OFF; //turn off red
-			SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
 			GPIO_E -> PDOR = GREEN_LED_ON;
+			SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
 			GPIO_E -> PDOR |= GREEN_LED_OFF; //turn off green
-			SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
 			GPIO_B -> PDOR = BLUE_LED_ON;
-			GPIO_B -> PDOR |= BLUE_LED_OFF; //turn off blue
 			SDK_DelayAtLeastUs(time_delay, MCU_APROX_FRECUENCY);
+			GPIO_B -> PDOR |= BLUE_LED_OFF; //turn off blue
 			}
+
    }
     return 0 ;
 }
